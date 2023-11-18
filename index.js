@@ -1,0 +1,70 @@
+const TelegramBot = require('node-telegram-bot-api');
+require('dotenv').config();
+const btoa = require('btoa');
+const atob = require('atob');
+
+const bot = new TelegramBot(process.env.NODE_APP_BOT_API_KEY, {
+    polling: true
+});
+
+const salt = process.env.NODE_APP_SALT;
+
+function encodeSecretSantaInfo(info) {
+	return btoa(salt + info);
+}
+  
+function decodeSecretSantaInfo(encodedInfo) {
+	const decoded = atob(encodedInfo);
+	return decoded.replace(salt, '');
+}
+
+function createSecretSantaList(users) {
+	let list = {};
+	users.forEach((user, index) => {
+		list[user] = users[(index + 1) % users.length];
+	});
+  	return list;
+}
+  
+bot.onText(/\/игра: (.+)/, (msg, match) => {
+	const chatId = msg.chat.id;
+	const usersInput = match[1];
+	const users = usersInput.split(',').map(user => user.trim());
+  
+	if (users.length < 2) {
+		bot.sendMessage(chatId, 'Недостатньо друзів 🤕');
+		return;
+	}
+  
+	const secretSantaList = createSecretSantaList(users);
+  	for (const user in secretSantaList) {
+		const encodedInfo = encodeSecretSantaInfo(user + '|' + secretSantaList[user]);
+		bot.sendMessage(chatId, `${user}, переходь сюди і дивись кому ти 🎅: https://t.me/${process.env.NODE_APP_BOT_NAME}?start=${encodedInfo}`);
+  	}
+});
+  
+bot.onText(/\/start (.+)/, (msg, match) => {
+	const chatId = msg.chat.id;
+	const encodedInfo = match[1];
+	const decodedInfo = decodeSecretSantaInfo(encodedInfo);
+	const parts = decodedInfo.split('|');
+
+	if (parts.length === 2) {
+		let intendedUser = parts[0];
+		const santaRecipient = parts[1];
+
+		if (intendedUser.startsWith('@')) {
+		intendedUser = intendedUser.substring(1);
+		}
+
+		if (msg.from.username === intendedUser) {
+		bot.sendMessage(chatId, `Вітаю! Ти 🎅 для ${santaRecipient}`);
+		} else {
+		bot.sendMessage(chatId, 'Що ти тут забув, козаче/козачка? Це посилання не для тебе. Якщо ви зіштовхнулися з проблемою - напишіть моєму таткові - @nazar_horbunov. Дякую 😉');
+		}
+	} else {
+		bot.sendMessage(chatId, 'Щось пішло не за планом ☠️');
+	}
+});
+
+console.log('Бот успешно запущен');

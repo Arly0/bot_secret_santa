@@ -1,0 +1,17 @@
+{
+  "name": "secret-santa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "arly0",
+  "license": "ISC",
+  "dependencies": {
+    "atob": "^2.1.2",
+    "btoa": "^1.2.1",
+    "dotenv": "^16.3.1",
+    "node-telegram-bot-api": "^0.64.0"
+  }
+}
