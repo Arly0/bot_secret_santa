@@ -19,11 +19,22 @@ function decodeSecretSantaInfo(encodedInfo) {
 }
 
 function createSecretSantaList(users) {
-	let list = {};
-	users.forEach((user, index) => {
-		list[user] = users[(index + 1) % users.length];
-	});
-  	return list;
+    let shuffledUsers = [...users];
+    let list = {};
+
+    // Random shuffle (Fisher-Yates algorithm)
+    for (let i = shuffledUsers.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [shuffledUsers[i], shuffledUsers[j]] = [shuffledUsers[j], shuffledUsers[i]];
+    }
+
+    // Assign each user a gift recipient
+    shuffledUsers.forEach((user, index) => {
+        let recipientIndex = (index + 1) % shuffledUsers.length;
+        list[user] = shuffledUsers[recipientIndex];
+    });
+	console.log(list);
+    return list;
 }
   
 bot.onText(/\/игра: (.+)/, (msg, match) => {
@@ -47,6 +58,7 @@ bot.onText(/\/start (.+)/, (msg, match) => {
 	const chatId = msg.chat.id;
 	const encodedInfo = match[1];
 	const decodedInfo = decodeSecretSantaInfo(encodedInfo);
+	console.log(msg.from.username);
 	const parts = decodedInfo.split('|');
 
 	if (parts.length === 2) {
@@ -54,9 +66,9 @@ bot.onText(/\/start (.+)/, (msg, match) => {
 		const santaRecipient = parts[1];
 
 		if (intendedUser.startsWith('@')) {
-		intendedUser = intendedUser.substring(1);
+			intendedUser = intendedUser.substring(1);
 		}
-
+		console.log(intendedUser);
 		if (msg.from.username === intendedUser) {
 		bot.sendMessage(chatId, `Вітаю! Ти 🎅 для ${santaRecipient}`);
 		} else {
