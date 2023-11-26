@@ -33,7 +33,6 @@ function createSecretSantaList(users) {
         let recipientIndex = (index + 1) % shuffledUsers.length;
         list[user] = shuffledUsers[recipientIndex];
     });
-	console.log(list);
     return list;
 }
   
@@ -58,7 +57,6 @@ bot.onText(/\/start (.+)/, (msg, match) => {
 	const chatId = msg.chat.id;
 	const encodedInfo = match[1];
 	const decodedInfo = decodeSecretSantaInfo(encodedInfo);
-	console.log(msg.from.username);
 	const parts = decodedInfo.split('|');
 
 	if (parts.length === 2) {
@@ -68,7 +66,6 @@ bot.onText(/\/start (.+)/, (msg, match) => {
 		if (intendedUser.startsWith('@')) {
 			intendedUser = intendedUser.substring(1);
 		}
-		console.log(intendedUser);
 		if (msg.from.username === intendedUser) {
 		bot.sendMessage(chatId, `Вітаю! Ти 🎅 для ${santaRecipient}`);
 		} else {
