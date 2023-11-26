@@ -47,10 +47,14 @@ bot.onText(/\/игра: (.+)/, (msg, match) => {
 	}
   
 	const secretSantaList = createSecretSantaList(users);
-  	for (const user in secretSantaList) {
-		const encodedInfo = encodeSecretSantaInfo(user + '|' + secretSantaList[user]);
-		bot.sendMessage(chatId, `${user}, переходь сюди і дивись кому ти 🎅: https://t.me/${process.env.NODE_APP_BOT_NAME}?start=${encodedInfo}`);
-  	}
+	let message = '';
+
+    for (const user in secretSantaList) {
+        const encodedInfo = encodeSecretSantaInfo(user + '|' + secretSantaList[user]);
+        message += `${user}, переходь сюди і дивись кому ти 🎅: https://t.me/${process.env.NODE_APP_BOT_NAME}?start=${encodedInfo}\n`;
+    }
+
+    bot.sendMessage(chatId, message);
 });
   
 bot.onText(/\/start (.+)/, (msg, match) => {
