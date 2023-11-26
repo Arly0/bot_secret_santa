@@ -49,10 +49,16 @@ bot.onText(/\/игра: (.+)/, (msg, match) => {
 	const secretSantaList = createSecretSantaList(users);
 	let message = '';
 
-    for (const user in secretSantaList) {
-        const encodedInfo = encodeSecretSantaInfo(user + '|' + secretSantaList[user]);
-        message += `${user}, переходь сюди і дивись кому ти 🎅: https://t.me/${process.env.NODE_APP_BOT_NAME}?start=${encodedInfo}\n`;
-    }
+	let userKeys = Object.keys(secretSantaList);
+	for (let i = userKeys.length - 1; i > 0; i--) {
+		let j = Math.floor(Math.random() * (i + 1));
+		[userKeys[i], userKeys[j]] = [userKeys[j], userKeys[i]];
+	}
+
+	userKeys.forEach(user => {
+		const encodedInfo = encodeSecretSantaInfo(user + '|' + secretSantaList[user]);
+		message += `${user}, переходь сюди і дивись кому ти 🎅: https://t.me/${process.env.NODE_APP_BOT_NAME}?start=${encodedInfo}\n`;
+	});
 
     bot.sendMessage(chatId, message);
 });
@@ -70,6 +76,7 @@ bot.onText(/\/start (.+)/, (msg, match) => {
 		if (intendedUser.startsWith('@')) {
 			intendedUser = intendedUser.substring(1);
 		}
+
 		if (msg.from.username === intendedUser) {
 		bot.sendMessage(chatId, `Вітаю! Ти 🎅 для ${santaRecipient}`);
 		} else {
